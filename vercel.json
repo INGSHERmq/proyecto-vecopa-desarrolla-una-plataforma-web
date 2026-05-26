@@ -1,36 +1,20 @@
 {
   "version": 2,
   "name": "vecopa",
-  "builds": [
-    {
-      "src": "apps/web/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    },
-    {
-      "src": "apps/api/src/main.ts",
-      "use": "@vercel/node",
-      "config": {
-        "runtime": "nodejs20.x",
-        "memory": 512,
-        "maxDuration": 30
-      }
+  "functions": {
+    "apps/api/src/main.ts": {
+      "runtime": "nodejs20.x",
+      "memory": 512,
+      "maxDuration": 30
     }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "apps/api/src/main.ts"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "apps/web/dist/$1"
-    }
-  ],
-  "env": {
-    "NODE_ENV": "production"
   },
-  "outputDirectory": "apps/web/dist"
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "apps/api/src/main.ts"
+    }
+  ],
+  "buildCommand": "npm run build",
+  "outputDirectory": "apps/web/dist",
+  "installCommand": "npm install"
 }
