@@ -1,6 +1,7 @@
 {
   "version": 2,
   "name": "vecopa",
+  "outputDirectory": "public",
   "builds": [
     {
       "src": "apps/api/src/main.ts",
@@ -14,8 +15,12 @@
   ],
   "routes": [
     {
+      "src": "/api/(.*)",
+      "dest": "apps/api/src/main.js"
+    },
+    {
       "src": "/(.*)",
-      "dest": "apps/api/src/main.ts"
+      "dest": "/$1"
     }
   ],
   "env": {
