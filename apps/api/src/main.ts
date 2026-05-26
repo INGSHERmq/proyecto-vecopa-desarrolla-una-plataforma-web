@@ -1,14 +1,17 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import helmet from 'helmet';
+import * as rateLimit from 'express-rate-limit';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
   // Security middleware
   app.use(helmet());
   
   // Rate limiting
-  app.use(require('express-rate-limit')({
+  app.use(rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // limit each IP to 100 requests per windowMs
     message: 'Too many requests from this IP, please try again later.'
@@ -16,7 +19,7 @@ async function bootstrap() {
 
   // Global validation pipe
   app.useGlobalPipes(
-    new (require('@nestjs/common').ValidationPipe)({
+    new ValidationPipe({
       whitelist: true,
       transform: true,
       forbidNonWhitelisted: true,
