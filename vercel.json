@@ -1,11 +1,11 @@
 {
   "version": 2,
   "name": "vecopa",
-  "buildCommand": "npm run build",
-  "outputDirectory": "public",
+  "buildCommand": "npm run build:web",
+  "outputDirectory": "apps/web/dist",
   "installCommand": "npm install",
   "functions": {
-    "apps/api/dist/main.js": {
+    "api/index.js": {
       "runtime": "nodejs20.x",
       "memory": 512,
       "maxDuration": 30
@@ -14,7 +14,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "apps/api/dist/main.js"
+      "dest": "api/index.js"
     }
   ]
 }
