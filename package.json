@@ -11,7 +11,7 @@
     "dev:web": "npm run dev --workspace @vecopa/web",
     "dev:api": "npm run start:dev --workspace @vecopa/api",
     "dev:all": "concurrently \"npm run dev:web\" \"npm run dev:api\"",
-    "build": "npm run build --workspaces",
+    "build": "npm run build:web && npm run build:api && node -e \"const fs = require('fs'); const path = require('path'); const source = 'apps/web/dist'; const dest = 'public'; if (fs.existsSync(source)) { fs.rmSync(dest, { recursive: true, force: true }); fs.cpSync(source, dest, { recursive: true }); } console.log('Copied dist to public');\"",
     "build:web": "npm run build --workspace @vecopa/web",
     "build:api": "npm run build --workspace @vecopa/api",
     "lint": "npm run lint --workspaces",
