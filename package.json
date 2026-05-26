@@ -27,25 +27,13 @@
     "prisma:seed": "npm run prisma:seed --workspace @vecopa/api",
     "clean": "rm -rf apps/*/dist apps/*/coverage apps/*/node_modules",
     "install:all": "npm install && npm run install:workspaces",
-    "install:workspaces": "npm install --workspaces",
-    "prepare": "husky install"
+    "install:workspaces": "npm install --workspaces"
   },
   "engines": {
     "node": ">=20"
   },
   "devDependencies": {
-    "concurrently": "^9.0.1",
-    "husky": "^9.0.11",
-    "lint-staged": "^15.2.2"
-  },
-  "lint-staged": {
-    "*.{ts,tsx,js,jsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{json,md}": [
-      "prettier --write"
-    ]
+    "concurrently": "^9.0.1"
   },
   "repository": {
     "type": "git",

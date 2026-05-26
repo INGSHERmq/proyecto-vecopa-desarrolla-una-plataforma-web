@@ -1,8 +1,8 @@
 {
-  "extends": ["./node_modules/generator-jest/templates/jestrc.json"],
+  "extends": "./node_modules/generator-jest/templates/jestrc.json",
   "preset": "ts-jest",
   "testEnvironment": "node",
-  "roots": ["<rootDir>/apps/api/src", "<rootDir>/apps/api/test"],
+  "roots": ["<rootDir>/src", "<rootDir>/test"],
   "testMatch": ["**/__tests__/**/*.ts", "**/?(*.)+(spec|test).ts"],
   "collectCoverageFrom": [
     "src/**/*.ts",
