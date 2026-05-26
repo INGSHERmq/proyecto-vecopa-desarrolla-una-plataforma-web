@@ -1,8 +1,9 @@
 import { IsString, IsOptional, IsBoolean } from 'class-validator';
 
-export class CreateCategoryDto {
+export class UpdateCategoryDto {
+  @IsOptional()
   @IsString()
-  name: string;
+  name?: string;
 
   @IsOptional()
   @IsString()

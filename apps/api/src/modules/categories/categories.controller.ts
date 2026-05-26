@@ -1,27 +1,34 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
-import { PaginationDto } from '../../common/dto/pagination.dto';
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { UpdateCategoryDto } from './dto/update-category.dto';
 
-@UseGuards(JwtAuthGuard)
 @Controller('categories')
 export class CategoriesController {
-  constructor(private readonly categories: CategoriesService) {}
-
-  @Get()
-  findAll(@Query() pagination: PaginationDto) {
-    return this.categories.findAll(pagination);
-  }
+  constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
-  create(@Body() dto: CreateCategoryDto) {
-    return this.categories.create(dto);
+  create(@Body() createCategoryDto: CreateCategoryDto) {
+    return this.categoriesService.create(createCategoryDto);
+  }
+
+  @Get()
+  findAll() {
+    return this.categoriesService.findAll();
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.categoriesService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: CreateCategoryDto) {
-    return this.categories.update(id, dto);
+  update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
+    return this.categoriesService.update(id, updateCategoryDto);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.categoriesService.remove(id);
   }
 }
-

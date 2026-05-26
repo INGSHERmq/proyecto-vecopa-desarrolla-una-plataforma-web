@@ -1,40 +1,28 @@
-import { UnauthorizedException } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
+import { UsersService } from '../modules/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { PrismaService } from '../database/prisma.service';
-import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly prisma: PrismaService,
-    private readonly jwt: JwtService,
+    private usersService: UsersService,
+    private jwtService: JwtService,
   ) {}
 
-  async login(dto: LoginDto) {
-    const user = await this.prisma.user.findUnique({
-      where: { email: dto.email },
-      include: { role: true },
-    });
-
-    if (!user || !(await bcrypt.compare(dto.password, user.passwordHash))) {
-      throw new UnauthorizedException('Credenciales invalidas');
+  async validateUser(email: string, pass: string): Promise<any> {
+    const user = await this.usersService.findByEmail(email);
+    if (user && (await bcrypt.compare(pass, user.password))) {
+      const { password, ...result } = user;
+      return result;
     }
+    return null;
+  }
 
-    const payload = { sub: user.id, email: user.email, role: user.role.name };
+  async login(user: any) {
+    const payload = { email: user.email, sub: user.id, role: user.role };
     return {
-      accessToken: await this.jwt.signAsync(payload),
-      user: { id: user.id, name: user.name, email: user.email, role: user.role.name },
+      access_token: this.jwtService.sign(payload),
     };
   }
-
-  async me(userId: string) {
-    const user = await this.prisma.user.findUniqueOrThrow({
-      where: { id: userId },
-      include: { role: true },
-    });
-    return { id: user.id, name: user.name, email: user.email, role: user.role.name };
-  }
 }
-

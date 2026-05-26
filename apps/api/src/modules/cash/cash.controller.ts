@@ -1,32 +1,29 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
+import { Controller, Get, Post, Body, Param, Patch } from '@nestjs/common';
 import { CashService } from './cash.service';
 import { CreateCashRegisterDto } from './dto/create-cash-register.dto';
-import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { UpdateCashRegisterDto } from './dto/update-cash-register.dto';
 
-@UseGuards(JwtAuthGuard)
-@Controller('cash-registers')
+@Controller('cash')
 export class CashController {
-  constructor(private readonly cash: CashService) {}
+  constructor(private readonly cashService: CashService) {}
+
+  @Post()
+  create(@Body() createCashRegisterDto: CreateCashRegisterDto) {
+    return this.cashService.create(createCashRegisterDto);
+  }
 
   @Get()
   findAll() {
-    return this.cash.findAll();
+    return this.cashService.findAll();
   }
 
-  @Post('open')
-  open(@Body() dto: CreateCashRegisterDto) {
-    return this.cash.open(dto);
-  }
-
-  @Post('transactions')
-  addTransaction(@Body() dto: CreateTransactionDto) {
-    return this.cash.addTransaction(dto);
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.cashService.findOne(id);
   }
 
   @Patch(':id/close')
-  close(@Param('id') id: string, @Body('closingAmount') closingAmount: number) {
-    return this.cash.close(id, Number(closingAmount));
+  close(@Param('id') id: string, @Body() updateCashRegisterDto: UpdateCashRegisterDto) {
+    return this.cashService.close(id, updateCashRegisterDto.closingAmount);
   }
 }
-

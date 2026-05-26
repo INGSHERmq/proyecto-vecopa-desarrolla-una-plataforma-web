@@ -1,48 +1,110 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { OrderStatus } from '@prisma/client';
-import { PrismaService } from '../../database/prisma.service';
-import { CreateOrderDto } from './dto/create-order.dto';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../database/prisma.service';
+import { CreateOrderDto } from '../../common/dto/create-order.dto';
+import { CreateOrderItemDto } from '../../common/dto/create-order-item.dto';
+import { Order, OrderStatus, Table } from '@prisma/client';
 
 @Injectable()
 export class OrdersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {}
 
-  findActive() {
-    return this.prisma.order.findMany({
-      where: { status: 'abierto' },
-      include: { table: true, items: { include: { product: true } }, payments: true },
-      orderBy: { createdAt: 'desc' },
-    });
-  }
-
-  async create(dto: CreateOrderDto) {
-    const products = await this.prisma.product.findMany({
-      where: { id: { in: dto.items.map((item) => item.productId) } },
-    });
-    if (products.length !== dto.items.length) throw new BadRequestException('Producto no encontrado');
-
+  async create(createOrderDto: CreateOrderDto): Promise<Order> {
     return this.prisma.$transaction(async (tx) => {
+      // Check if table is available
+      const table = await tx.table.findUnique({
+        where: { id: createOrderDto.tableId },
+      });
+
+      if (!table || table.status !== 'AVAILABLE') {
+        throw new Error('Table is not available');
+      }
+
+      // Update table status
+      await tx.table.update({
+        where: { id: createOrderDto.tableId },
+        data: { status: 'OCCUPIED' },
+      });
+
+      // Create order
       const order = await tx.order.create({
         data: {
-          tableId: dto.tableId,
-          waiter: dto.waiter,
-          notes: dto.notes,
-          items: {
-            create: dto.items.map((item) => {
-              const product = products.find((candidate) => candidate.id === item.productId)!;
-              return { productId: item.productId, quantity: item.quantity, unitPrice: product.price, note: item.note };
-            }),
-          },
+          tableId: createOrderDto.tableId,
+          userId: createOrderDto.userId,
+          status: OrderStatus.PENDING,
         },
-        include: { items: true },
       });
-      await tx.diningTable.update({ where: { id: dto.tableId }, data: { status: 'ocupada' } });
+
       return order;
     });
   }
 
-  setStatus(id: string, status: OrderStatus) {
-    return this.prisma.order.update({ where: { id }, data: { status } });
+  async findAll(): Promise<Order[]> {
+    return this.prisma.order.findMany({
+      include: {
+        table: true,
+        user: true,
+        items: {
+          include: { product: true },
+        },
+      },
+    });
+  }
+
+  async findOne(id: string): Promise<Order | null> {
+    return this.prisma.order.findUnique({
+      where: { id },
+      include: {
+        table: true,
+        user: true,
+        items: {
+          include: { product: true },
+        },
+      },
+    });
+  }
+
+  async updateStatus(id: string, status: OrderStatus): Promise<Order> {
+    return this.prisma.order.update({
+      where: { id },
+      data: { status },
+    });
+  }
+
+  async addOrderItems(id: string, items: CreateOrderItemDto[]): Promise<Order> {
+    return this.prisma.$transaction(async (tx) => {
+      const order = await tx.order.findUnique({
+        where: { id },
+        include: { items: true },
+      });
+
+      if (!order) {
+        throw new Error('Order not found');
+      }
+
+      // Calculate total and create order items
+      let total = 0;
+      const orderItemsData = items.map((item) => {
+        total += item.price * item.quantity;
+        return {
+          orderId: id,
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.price,
+        };
+      });
+
+      // Create order items
+      await tx.orderItem.createMany({
+        data: orderItemsData,
+      });
+
+      // Update order total
+      await tx.order.update({
+        where: { id },
+        data: { total },
+      });
+
+      return this.findOne(id);
+    });
   }
 }
-

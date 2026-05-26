@@ -1,15 +1,17 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ReportsService } from './reports.service';
 
-@UseGuards(JwtAuthGuard)
 @Controller('reports')
 export class ReportsController {
-  constructor(private readonly reports: ReportsService) {}
+  constructor(private readonly reportsService: ReportsService) {}
 
-  @Get('daily')
-  daily() {
-    return this.reports.daily();
+  @Get('sales')
+  getSalesReport(@Query('startDate') startDate: string, @Query('endDate') endDate: string) {
+    return this.reportsService.getSalesReport(new Date(startDate), new Date(endDate));
+  }
+
+  @Get('popular-products')
+  getPopularProducts(@Query('limit') limit: number = 10) {
+    return this.reportsService.getPopularProducts(limit);
   }
 }
-

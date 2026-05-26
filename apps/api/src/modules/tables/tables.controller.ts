@@ -1,26 +1,34 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
-import { CreateTableDto, TableStatusDto } from './dto/create-table.dto';
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { TablesService } from './tables.service';
+import { CreateTableDto } from './dto/create-table.dto';
+import { UpdateTableDto } from './dto/update-table.dto';
 
-@UseGuards(JwtAuthGuard)
 @Controller('tables')
 export class TablesController {
-  constructor(private readonly tables: TablesService) {}
+  constructor(private readonly tablesService: TablesService) {}
+
+  @Post()
+  create(@Body() createTableDto: CreateTableDto) {
+    return this.tablesService.create(createTableDto);
+  }
 
   @Get()
   findAll() {
-    return this.tables.findAll();
+    return this.tablesService.findAll();
   }
 
-  @Post()
-  create(@Body() dto: CreateTableDto) {
-    return this.tables.create(dto);
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.tablesService.findOne(id);
   }
 
-  @Patch(':id/status')
-  setStatus(@Param('id') id: string, @Body('status') status: TableStatusDto) {
-    return this.tables.setStatus(id, status);
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateTableDto: UpdateTableDto) {
+    return this.tablesService.update(id, updateTableDto);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.tablesService.remove(id);
   }
 }
-

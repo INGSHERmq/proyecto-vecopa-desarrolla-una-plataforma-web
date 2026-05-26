@@ -1,32 +1,42 @@
 import { Injectable } from '@nestjs/common';
-import { PaginationDto } from '../../common/dto/pagination.dto';
-import { PrismaService } from '../../database/prisma.service';
+import { PrismaService } from '../database/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
+import { Product } from '@prisma/client';
 
 @Injectable()
 export class ProductsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {}
 
-  async findAll({ page, limit }: PaginationDto) {
-    const [items, total] = await this.prisma.$transaction([
-      this.prisma.product.findMany({
-        where: { deletedAt: null },
-        include: { category: true },
-        skip: (page - 1) * limit,
-        take: limit,
-        orderBy: { name: 'asc' },
-      }),
-      this.prisma.product.count({ where: { deletedAt: null } }),
-    ]);
-    return { items, meta: { page, limit, total } };
+  async create(createProductDto: CreateProductDto): Promise<Product> {
+    return this.prisma.product.create({
+      data: createProductDto,
+    });
   }
 
-  create(dto: CreateProductDto) {
-    return this.prisma.product.create({ data: dto });
+  async findAll(): Promise<Product[]> {
+    return this.prisma.product.findMany({
+      include: { category: true },
+    });
   }
 
-  update(id: string, dto: Partial<CreateProductDto>) {
-    return this.prisma.product.update({ where: { id }, data: dto });
+  async findOne(id: string): Promise<Product | null> {
+    return this.prisma.product.findUnique({
+      where: { id },
+      include: { category: true },
+    });
+  }
+
+  async update(id: string, updateProductDto: UpdateProductDto): Promise<Product> {
+    return this.prisma.product.update({
+      where: { id },
+      data: updateProductDto,
+    });
+  }
+
+  async remove(id: string): Promise<Product> {
+    return this.prisma.product.delete({
+      where: { id },
+    });
   }
 }
-

@@ -1,21 +1,23 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
-import { CreatePaymentDto } from './dto/create-payment.dto';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
+import { CreatePaymentDto } from '../../common/dto/create-payment.dto';
 
-@UseGuards(JwtAuthGuard)
 @Controller('payments')
 export class PaymentsController {
-  constructor(private readonly payments: PaymentsService) {}
+  constructor(private readonly paymentsService: PaymentsService) {}
+
+  @Post()
+  create(@Body() createPaymentDto: CreatePaymentDto) {
+    return this.paymentsService.create(createPaymentDto);
+  }
 
   @Get()
   findAll() {
-    return this.payments.findAll();
+    return this.paymentsService.findAll();
   }
 
-  @Post()
-  create(@Body() dto: CreatePaymentDto) {
-    return this.payments.create(dto);
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.paymentsService.findOne(id);
   }
 }
-

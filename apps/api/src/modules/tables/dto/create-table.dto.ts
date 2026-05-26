@@ -1,24 +1,13 @@
-import { Type } from 'class-transformer';
-import { IsEnum, IsInt, IsOptional, IsString, Min, MinLength } from 'class-validator';
-
-export enum TableStatusDto {
-  libre = 'libre',
-  ocupada = 'ocupada',
-  reservada = 'reservada',
-}
+import { IsInt, IsEnum } from 'class-validator';
+import { TableStatus } from '@prisma/client';
 
 export class CreateTableDto {
-  @IsString()
-  @MinLength(2)
-  name: string;
-
-  @Type(() => Number)
   @IsInt()
-  @Min(1)
+  number: number;
+
+  @IsInt()
   capacity: number;
 
-  @IsOptional()
-  @IsEnum(TableStatusDto)
-  status?: TableStatusDto;
+  @IsEnum(TableStatus)
+  status: TableStatus;
 }
-

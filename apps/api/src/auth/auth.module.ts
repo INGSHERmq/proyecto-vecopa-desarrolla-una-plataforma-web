@@ -1,29 +1,22 @@
-import { Global, Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
-import type { StringValue } from 'ms';
-import { PassportModule } from '@nestjs/passport';
-import { AuthController } from './auth.controller';
+import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { FirebaseAdminService } from './firebase-admin.service';
-import { JwtAuthGuard } from './jwt-auth.guard';
-import { JwtStrategy } from './jwt.strategy';
+import { AuthController } from './auth.controller';
+import { UsersModule } from '../modules/users/users.module';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
+import { LocalStrategy } from './strategies/local.strategy';
 
-@Global()
 @Module({
   imports: [
+    UsersModule,
     PassportModule,
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        secret: config.get<string>('JWT_SECRET') ?? 'dev-secret',
-        signOptions: { expiresIn: (config.get<string>('JWT_EXPIRES_IN') ?? '8h') as StringValue },
-      }),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET || 'your-secret-key',
+      signOptions: { expiresIn: process.env.JWT_EXPIRES_IN || '1h' },
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, FirebaseAdminService, JwtAuthGuard],
-  exports: [AuthService, FirebaseAdminService, JwtAuthGuard],
+  providers: [AuthService, LocalStrategy],
+  exports: [AuthService],
 })
 export class AuthModule {}

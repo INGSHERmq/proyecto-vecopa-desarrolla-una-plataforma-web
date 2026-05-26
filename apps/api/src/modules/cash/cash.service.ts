@@ -1,41 +1,52 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../database/prisma.service';
+import { PrismaService } from '../database/prisma.service';
 import { CreateCashRegisterDto } from './dto/create-cash-register.dto';
-import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { UpdateCashRegisterDto } from './dto/update-cash-register.dto';
+import { CashRegister, CashRegisterStatus } from '@prisma/client';
 
 @Injectable()
 export class CashService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {}
 
-  findAll() {
-    return this.prisma.cashRegister.findMany({ include: { transactions: true }, orderBy: { openedAt: 'desc' } });
-  }
-
-  open(dto: CreateCashRegisterDto) {
+  async create(createCashRegisterDto: CreateCashRegisterDto): Promise<CashRegister> {
     return this.prisma.cashRegister.create({
       data: {
-        ...dto,
-        transactions: { create: { type: 'apertura', amount: dto.openingAmount, note: 'Apertura de caja' } },
+        ...createCashRegisterDto,
+        status: CashRegisterStatus.OPEN,
       },
-      include: { transactions: true },
     });
   }
 
-  addTransaction(dto: CreateTransactionDto) {
-    return this.prisma.transaction.create({ data: dto });
+  async findAll(): Promise<CashRegister[]> {
+    return this.prisma.cashRegister.findMany({
+      include: { payments: true },
+    });
   }
 
-  close(id: string, closingAmount: number) {
-    return this.prisma.cashRegister.update({
+  async findOne(id: string): Promise<CashRegister | null> {
+    return this.prisma.cashRegister.findUnique({
       where: { id },
-      data: {
-        closingAmount,
-        status: 'cerrada',
-        closedAt: new Date(),
-        transactions: { create: { type: 'cierre', amount: closingAmount, note: 'Cierre de caja' } },
-      },
-      include: { transactions: true },
+      include: { payments: true },
+    });
+  }
+
+  async close(id: string, closingAmount: number): Promise<CashRegister> {
+    return this.prisma.$transaction(async (tx) => {
+      // Calculate total payments
+      const payments = await tx.payment.findMany({
+        where: { cashRegisterId: id },
+      });
+
+      const totalPayments = payments.reduce((sum, payment) => sum + payment.amount, 0);
+
+      // Update cash register
+      return tx.cashRegister.update({
+        where: { id },
+        data: {
+          closingAmount,
+          status: CashRegisterStatus.CLOSED,
+        },
+      });
     });
   }
 }
-

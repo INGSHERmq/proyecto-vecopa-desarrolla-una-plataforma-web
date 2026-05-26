@@ -1,24 +1,51 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../database/prisma.service';
-import { CreatePaymentDto } from './dto/create-payment.dto';
+import { PrismaService } from '../database/prisma.service';
+import { CreatePaymentDto } from '../../common/dto/create-payment.dto';
+import { Payment, PaymentStatus } from '@prisma/client';
 
 @Injectable()
 export class PaymentsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {}
 
-  findAll() {
-    return this.prisma.payment.findMany({ include: { order: true }, orderBy: { createdAt: 'desc' } });
-  }
-
-  async create(dto: CreatePaymentDto) {
+  async create(createPaymentDto: CreatePaymentDto): Promise<Payment> {
     return this.prisma.$transaction(async (tx) => {
-      const payment = await tx.payment.create({ data: { ...dto, confirmed: dto.confirmed ?? true } });
-      if (payment.confirmed) {
-        const order = await tx.order.update({ where: { id: dto.orderId }, data: { status: 'pagado' } });
-        await tx.diningTable.update({ where: { id: order.tableId }, data: { status: 'libre' } });
+      // Get order
+      const order = await tx.order.findUnique({
+        where: { id: createPaymentDto.orderId },
+        include: { items: true },
+      });
+
+      if (!order) {
+        throw new Error('Order not found');
       }
+
+      // Create payment
+      const payment = await tx.payment.create({
+        data: createPaymentDto,
+      });
+
+      // Update order status if payment is completed
+      if (createPaymentDto.status === PaymentStatus.COMPLETED) {
+        await tx.order.update({
+          where: { id: createPaymentDto.orderId },
+          data: { status: 'COMPLETED' },
+        });
+      }
+
       return payment;
     });
   }
-}
 
+  async findAll(): Promise<Payment[]> {
+    return this.prisma.payment.findMany({
+      include: { order: true },
+    });
+  }
+
+  async findOne(id: string): Promise<Payment | null> {
+    return this.prisma.payment.findUnique({
+      where: { id },
+      include: { order: true },
+    });
+  }
+}
