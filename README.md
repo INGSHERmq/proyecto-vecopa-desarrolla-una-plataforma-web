@@ -1,39 +1,72 @@
-# Vecopa
+# Vecopa - Plataforma Web POS
 
-Vecopa es una plataforma web responsive para HORECA orientada a celulares, tablets y escritorio. El MVP incluye frontend React/Vite y backend NestJS con Prisma/PostgreSQL.
+## Estructura del Proyecto
 
-## Estructura
-
-- `apps/web`: React, Vite, TypeScript, TailwindCSS, Zustand.
-- `apps/api`: NestJS, Prisma ORM, PostgreSQL, JWT.
-
-## Inicio rapido
-
-```bash
-npm install
-cp .env.example apps/api/.env
-cp .env.example apps/web/.env
-npm run prisma:generate
-npm run seed
-npm run dev:web
-npm run dev:api
+```
+proyecto-vecopa/
+├── apps/
+│   ├── web/                 # Frontend React + Vite
+│   │   ├── src/
+│   │   │   ├── modules/     # Módulos de la aplicación
+│   │   │   ├── shared/      # Componentes, layouts y servicios compartidos
+│   │   │   └── lib/        # Utilidades y configuraciones
+│   │   └── package.json
+│   └── api/                 # Backend NestJS
+│       ├── src/
+│       │   ├── modules/     # Módulos de la API
+│       │   ├── auth/        # Autenticación
+│       │   ├── common/      # DTOs y utilidades comunes
+│       │   └── database/    # Configuración de base de datos
+│       ├── prisma/          # Configuración de Prisma
+│       └── package.json
+├── vercel.json              # Configuración de despliegue en Vercel
+├── package.json             # Configuración del workspace
+├── .env.example             # Variables de entorno
+├── .gitignore              # Archivos ignorados
+└── VERCEL.md               # Guía de despliegue
 ```
 
-Firebase:
+## Tecnologías
 
-- El frontend usa Firebase Auth y Firestore con el proyecto `vecopa-14fec`.
-- Activa Email/Password en Authentication.
-- Publica reglas similares a `firestore.rules`.
-- Al iniciar sesion por primera vez, si Firestore esta vacio, Vecopa crea datos operativos iniciales.
+### Frontend (apps/web/)
+- React 19 + TypeScript
+- Vite
+- Tailwind CSS
+- React Router DOM
+- Firebase
+- Zustand (gestión de estado)
 
-Usuarios sugeridos:
+### Backend (apps/api/)
+- NestJS
+- TypeScript
+- Prisma ORM
+- PostgreSQL
+- JWT Authentication
+- Firebase Admin
 
-- `admin@vecopa.pe` / `Admin123!`
-- `caja@vecopa.pe` / `Caja123!`
-- `mozo@vecopa.pe` / `Mozo123!`
+## Despliegue en Vercel
 
-El backend Nest acepta tokens reales de Firebase Auth en el header:
+El proyecto está configurado para desplegarse en Vercel con:
+- Frontend como aplicación estática
+- Backend como serverless functions
+- Rutas API configuradas correctamente
 
-```txt
-Authorization: Bearer <firebase-id-token>
+## Variables de Entorno
+
+Ver `.env.example` para todas las variables necesarias.
+
+## Comandos de Desarrollo
+
+```bash
+# Iniciar frontend
+npm run dev:web
+
+# Iniciar backend
+npm run dev:api
+
+# Iniciar ambos
+npm run dev
+
+# Construir para producción
+npm run build
 ```

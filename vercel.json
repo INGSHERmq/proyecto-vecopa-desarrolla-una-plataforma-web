@@ -7,8 +7,7 @@
       "use": "@vercel/static-build",
       "config": {
         "distDir": "dist"
-      },
-      "outputDirectory": "apps/web/dist"
+      }
     },
     {
       "src": "apps/api/src/main.ts",
@@ -32,5 +31,6 @@
   ],
   "env": {
     "NODE_ENV": "production"
-  }
+  },
+  "outputDirectory": "apps/web/dist"
 }
