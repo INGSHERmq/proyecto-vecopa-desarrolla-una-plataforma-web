@@ -10,14 +10,62 @@
     "dev": "npm run dev --workspace @vecopa/web",
     "dev:web": "npm run dev --workspace @vecopa/web",
     "dev:api": "npm run start:dev --workspace @vecopa/api",
-    "build": "cd apps/api && npm run build && cd ../web && npm run build",
+    "dev:all": "concurrently \"npm run dev:web\" \"npm run dev:api\"",
+    "build": "npm run build --workspaces",
+    "build:web": "npm run build --workspace @vecopa/web",
+    "build:api": "npm run build --workspace @vecopa/api",
     "lint": "npm run lint --workspaces",
+    "lint:fix": "npm run lint:fix --workspaces",
     "typecheck": "npm run typecheck --workspaces",
+    "test": "npm run test --workspaces",
+    "test:coverage": "npm run test:coverage --workspaces",
+    "format": "npm run format --workspaces",
     "prisma:generate": "npm run prisma:generate --workspace @vecopa/api",
     "prisma:migrate": "npm run prisma:migrate --workspace @vecopa/api",
-    "seed": "npm run seed --workspace @vecopa/api"
+    "prisma:migrate:deploy": "npm run prisma:migrate:deploy --workspace @vecopa/api",
+    "prisma:studio": "npm run prisma:studio --workspace @vecopa/api",
+    "prisma:seed": "npm run prisma:seed --workspace @vecopa/api",
+    "clean": "rm -rf apps/*/dist apps/*/coverage apps/*/node_modules",
+    "install:all": "npm install && npm run install:workspaces",
+    "install:workspaces": "npm install --workspaces",
+    "prepare": "husky install"
   },
   "engines": {
     "node": ">=20"
-  }
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tu-usuario/proyecto-vecopa.git"
+  },
+  "keywords": [
+    "pos",
+    "restaurant",
+    "horeca",
+    "react",
+    "nestjs",
+    "typescript",
+    "monorepo",
+    "firebase",
+    "prisma"
+  ],
+  "author": "Tu Nombre",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tu-usuario/proyecto-vecopa/issues"
+  },
+  "homepage": "https://github.com/tu-usuario/proyecto-vecopa#readme"
 }

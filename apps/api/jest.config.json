@@ -1,0 +1,19 @@
+{
+  "extends": ["./node_modules/generator-jest/templates/jestrc.json"],
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "roots": ["<rootDir>/apps/api/src", "<rootDir>/apps/api/test"],
+  "testMatch": ["**/__tests__/**/*.ts", "**/?(*.)+(spec|test).ts"],
+  "collectCoverageFrom": [
+    "src/**/*.ts",
+    "!src/**/*.d.ts",
+    "!src/main.ts",
+    "!src/**/index.ts"
+  ],
+  "coverageDirectory": "coverage",
+  "coverageReporters": ["text", "lcov", "html"],
+  "setupFilesAfterEnv": ["<rootDir>/test/setup.ts"],
+  "moduleNameMapping": {
+    "^@/(.*)$": "<rootDir>/src/$1"
+  }
+}
