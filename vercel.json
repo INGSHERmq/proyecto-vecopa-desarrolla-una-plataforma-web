@@ -1,6 +1,7 @@
 {
   "version": 2,
   "name": "vecopa",
+  "outputDirectory": "public",
   "installCommand": "npm install",
   "functions": {
     "api/index.js": {
