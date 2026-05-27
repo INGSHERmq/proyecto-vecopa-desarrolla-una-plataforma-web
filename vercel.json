@@ -1,6 +1,7 @@
 {
   "version": 2,
   "name": "vecopa",
+  "framework": null,
   "outputDirectory": "public",
   "installCommand": "npm install",
   "functions": {
