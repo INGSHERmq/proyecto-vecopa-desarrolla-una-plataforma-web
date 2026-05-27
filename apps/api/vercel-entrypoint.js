@@ -2,7 +2,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './src/app.module';
 
-export async function handler(event, context) {
+export async function handler() {
   const app = await NestFactory.create(AppModule);
   
   // Enable CORS
@@ -12,8 +12,6 @@ export async function handler(event, context) {
   });
 
   await app.init();
-  
-  const httpAdapter = app.getHttpAdapter();
   
   return {
     statusCode: 200,

@@ -46,6 +46,7 @@ model Product {
   categoryId  String
   image       String?
   available   Boolean  @default(true)
+  stock       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
@@ -104,17 +105,19 @@ model OrderItem {
 }
 
 model Payment {
-  id          String        @id @default(cuid())
-  orderId     String
-  amount      Float
-  method      PaymentMethod
-  status      PaymentStatus @default(PENDING)
+  id            String        @id @default(cuid())
+  orderId       String
+  amount        Float
+  method        PaymentMethod
+  status        PaymentStatus @default(PENDING)
   transactionId String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  cashRegisterId String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
   
   // Relations
-  order Order @relation(fields: [orderId], references: [id])
+  order        Order         @relation(fields: [orderId], references: [id])
+  cashRegister CashRegister? @relation(fields: [cashRegisterId], references: [id])
   
   @@map("payments")
 }

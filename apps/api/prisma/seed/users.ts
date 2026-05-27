@@ -1,29 +1,29 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 
 export const seedUsers = async (prisma: PrismaClient) => {
   const hashedPassword = await bcrypt.hash('admin123', 10);
 
-  const users = [
+  const users: { email: string; password: string; name: string; role: Role; phone: string }[] = [
     {
       email: 'admin@vecopa.com',
       password: hashedPassword,
       name: 'Administrador',
-      role: 'ADMIN',
+      role: Role.ADMIN,
       phone: '+34912345678',
     },
     {
       email: 'cajero@vecopa.com',
       password: hashedPassword,
       name: 'Cajero Principal',
-      role: 'CAJERO',
+      role: Role.CAJERO,
       phone: '+34987654321',
     },
     {
       email: 'mozo@vecopa.com',
       password: hashedPassword,
       name: 'Mozo Principal',
-      role: 'MOZO',
+      role: Role.MOZO,
       phone: '+34955555555',
     },
   ];
